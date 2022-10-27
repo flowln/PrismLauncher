@@ -399,9 +399,33 @@ bool overrideFolder(QString overwritten_path, QString override_path)
         return false;
 
     std::error_code err;
-    fs::copy_options opt = copy_opts::recursive | copy_opts::overwrite_existing;
+    fs::copy_options opt = copy_opts::none;
 
+#if defined Q_OS_WIN
+    // Windows fails to override if the target folder already exists .-.
+    QDir src_dir(override_path);
+    QDirIterator source_it(override_path, QDir::Filter::Files | QDir::Filter::Hidden, QDirIterator::Subdirectories);
+
+    while (source_it.hasNext()) {
+        auto src_path = source_it.next();
+        auto relative_path = src_dir.relativeFilePath(src_path);
+
+        auto dst_path = PathCombine(overwritten_path, relative_path);
+        ensureFilePathExists(dst_path);
+
+        // Remove old one to appease Windows
+        fs::remove(toStdString(dst_path), err);
+        if (err.value())
+            break;
+
+        fs::copy(toStdString(src_path), toStdString(dst_path), opt, err);
+        if (err.value())
+            break;
+    }
+#else
+    opt = copy_opts::recursive | copy_opts::overwrite_existing;
     fs::copy(toStdString(override_path), toStdString(overwritten_path), opt, err);
+#endif
 
     if (err) {
         qCritical() << QString("Failed to apply override from %1 to %2").arg(override_path, overwritten_path);
