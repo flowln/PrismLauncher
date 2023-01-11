@@ -62,6 +62,9 @@ SystemTheme::SystemTheme()
 
 void SystemTheme::apply()
 {
+    changed_qqc_theme = !ThemeManager::usingQmlSystemTheme();
+    ThemeManager::writeGlobalQMLTheme();
+
     ITheme::apply();
 }
 

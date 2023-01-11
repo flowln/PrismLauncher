@@ -1138,6 +1138,11 @@ void Application::setIconTheme(const QString& name)
     m_themeManager->setIconTheme(name);
 }
 
+bool Application::needsRestartDueToTheme() const
+{
+    return m_themeManager->needsRestart();
+}
+
 QIcon Application::getThemedIcon(const QString& name)
 {
     if(name == "logo") {

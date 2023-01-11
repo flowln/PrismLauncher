@@ -126,6 +126,8 @@ public:
 
     void setApplicationTheme(const QString& name);
 
+    bool needsRestartDueToTheme() const;
+
     shared_qobject_ptr<UpdateChecker> updateChecker() {
         return m_updateChecker;
     }
