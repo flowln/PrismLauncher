@@ -1113,10 +1113,20 @@ endif()
 # NOTE: it seems that this absolutely has to be here, and nowhere else.
 if(INSTALL_BUNDLE STREQUAL "full")
     # Add qt.conf - this makes Qt stop looking for things outside the bundle
-    install(
-        CODE "file(WRITE \"\${CMAKE_INSTALL_PREFIX}/${RESOURCES_DEST_DIR}/qt.conf\" \" \")"
-        COMPONENT Runtime
-    )
+    if (UNIX AND APPLE)
+        install(
+            FILES "../${Launcher_QtConf_MacOS}"
+            DESTINATION "${CMAKE_INSTALL_PREFIX}/${RESOURCES_DEST_DIR}"
+            COMPONENT Runtime
+            RENAME "qt.conf"
+        )
+    else()
+        install(
+            CODE "file(WRITE \"\${CMAKE_INSTALL_PREFIX}/${RESOURCES_DEST_DIR}/qt.conf\" \" \")"
+            COMPONENT Runtime
+        )
+    endif()
+
     # Bundle plugins
     # Image formats
     install(
@@ -1216,13 +1226,13 @@ if(INSTALL_BUNDLE STREQUAL "full")
     install(
         DIRECTORY "${QT_QML_DIR}/QtQml"
         CONFIGURATIONS Debug RelWithDebInfo ""
-        DESTINATION ${PLUGIN_DEST_DIR}
+        DESTINATION ${QML_DEST_DIR}
         COMPONENT Runtime
     )
     install(
         DIRECTORY "${QT_QML_DIR}/QtQml"
         CONFIGURATIONS Release MinSizeRel
-        DESTINATION ${PLUGIN_DEST_DIR}
+        DESTINATION ${QML_DEST_DIR}
         COMPONENT Runtime
         REGEX "d\\." EXCLUDE
         REGEX "_debug\\." EXCLUDE
@@ -1232,13 +1242,13 @@ if(INSTALL_BUNDLE STREQUAL "full")
     install(
         DIRECTORY "${QT_QML_DIR}/QtQuick"
         CONFIGURATIONS Debug RelWithDebInfo ""
-        DESTINATION ${PLUGIN_DEST_DIR}
+        DESTINATION ${QML_DEST_DIR}
         COMPONENT Runtime
     )
     install(
         DIRECTORY "${QT_QML_DIR}/QtQuick"
         CONFIGURATIONS Release MinSizeRel
-        DESTINATION ${PLUGIN_DEST_DIR}
+        DESTINATION ${QML_DEST_DIR}
         COMPONENT Runtime
         REGEX "d\\." EXCLUDE
         REGEX "_debug\\." EXCLUDE
